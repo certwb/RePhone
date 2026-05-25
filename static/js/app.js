@@ -87,6 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const data = await res.json() || [];
             
+            if (reset) {
+                phonesGrid.innerHTML = '';
+            }
+            
             if (data.length < limit) {
                 hasMore = false;
                 endMessage.classList.remove('hidden');
@@ -689,6 +693,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const openChat = async (userId, userEmail, phoneId, phoneTitle) => {
         currentChatUserId = userId;
         currentChatPhoneId = phoneId;
+        
+        chatTabContent.classList.remove('hidden');
+        emptyStateMessages.classList.add('hidden');
+
         chatHeader.classList.remove('hidden');
         chatForm.classList.remove('hidden');
         
@@ -991,13 +999,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const phoneTitle = messageBtn.getAttribute('data-phonetitle');
             
             // Открываем профиль, вкладку сообщений и сразу этот чат
-            document.getElementById('btnProfile').click();
-            document.querySelector('.tab-btn[data-tab="messages"]').click();
+            mainView.classList.add('hidden');
+            profileView.classList.remove('hidden');
+            tabBtns.forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="messages"]').classList.add('active');
             
-            // Если чат с этим продавцом не в списке (или мы хотим начать новый),
-            // мы можем принудительно открыть окно чата. Но имя пользователя у нас нет,
-            // кроме как доставать из API. Сделаем упрощенно:
-            openChat(sellerId, `Продавец (ID: ${sellerId})`, phoneId, phoneTitle);
+            loadChats().then(() => {
+                openChat(sellerId, `Продавец (ID: ${sellerId})`, phoneId, phoneTitle);
+            });
             return;
         }
 
